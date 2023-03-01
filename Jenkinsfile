@@ -1,32 +1,19 @@
-@Library("app-lib") _
+@Library("mylibs") _
 pipeline {
   agent any
-
   tools {
-    maven 'maven3'
+    maven 'maven2'
   }
-  options {
-    buildDiscarder logRotator(daysToKeepStr: '10', numToKeepStr: '7')
-  }
-  parameters {
-    choice choices: ['develop', 'qa', 'master'], description: 'Choose the branch to build', name: 'branchName'
-  }
-  stages {
-    stage('Maven Build') {
-      steps {
-        sh 'mvn clean package'
+  stages{
+    stage("Maven Build"){
+      steps{
+        sh "mvn clean package"
       }
     }
-    stage('Deploy to Tomcat') {
-      steps {
-        tomcatDeploy(["172.31.13.38","172.31.13.38","172.31.13.38"],"ec2-user","tomcat-dev")
+    stage("Deploy To Dev"){
+      steps{
+        tomcatDeploy("tomcat-dev","ec2-user",["172.31.13.89","172.31.13.89"])
       }
-    }
-  }
-  post {
-    success {
-      archiveArtifacts artifacts: 'target/*.war'
-      cleanWs()
     }
   }
 }
